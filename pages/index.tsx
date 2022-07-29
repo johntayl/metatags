@@ -212,7 +212,7 @@ export async function getServerSideProps(context: NextPageContext) {
 
   if (query.url) {
     const metaTags = await fetchUrl(
-      query.url as string,
+      decodeURIComponent(query.url as string),
       `http://${req?.headers.host}`
     );
     return {
