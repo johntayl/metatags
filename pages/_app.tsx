@@ -1,6 +1,6 @@
 import { ReactElement, ReactNode } from "react";
 import type { AppProps } from "next/app";
-import { ScriptProps } from "next/script";
+import Script, { ScriptProps } from "next/script";
 import { NextPage } from "next";
 
 import "../styles/globals.css";
@@ -54,6 +54,21 @@ const Layout = ({ children }: LayoutProps) => {
       </div>
 
       <div className="content">{children}</div>
+
+      {/* <!-- Global site tag (gtag.js) - Google Analytics --> */}
+      <Script
+        strategy="afterInteractive"
+        src="https://www.googletagmanager.com/gtag/js?id=G-09H41LRFS9"
+      ></Script>
+      <Script id="google-analytics" strategy="afterInteractive">
+        {`
+          window.dataLayer = window.dataLayer || [];
+          function gtag(){dataLayer.push(arguments);}
+          gtag('js', new Date());
+
+          gtag('config', 'G-09H41LRFS9');
+      `}
+      </Script>
     </>
   );
 };
