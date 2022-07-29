@@ -55,15 +55,9 @@ const FacebookPreview = ({ metaTags }: { metaTags: MetaTags }) => {
 
       <div className="w-[500px]">
         <div className="flex flex-col justify-start items-start border-[1px] border-gray-200">
-          <div className="relative">
-            <picture>
-              <img
-                className="object-cover w-[500px] h-[261px]"
-                src={metaTags.og_image}
-                alt={metaTags.og_title}
-              />
-            </picture>
-          </div>
+          <div
+            className={`relative w-[500px] h-[261px] bg-[url(${metaTags.og_image})]`}
+          ></div>
           <div className="flex flex-col justify-start items-start bg-[#f2f3f5] p-2 w-full">
             <div className="uppercase text-sm text-gray-500">
               {metaTags.og_site_name}
@@ -91,15 +85,9 @@ const TwitterPreview = ({ metaTags }: { metaTags: MetaTags }) => {
 
       <div className="w-[500px]">
         <div className="flex flex-col justify-start items-start border-[1px] border-gray-300 rounded-md overflow-hidden">
-          <div className="relative">
-            <picture>
-              <img
-                className="object-cover w-[500px] h-[261px]"
-                src={metaTags.og_image}
-                alt={metaTags.og_title}
-              />
-            </picture>
-          </div>
+          <div
+            className={`relative w-[500px] h-[261px] bg-[url(${metaTags.og_image})]`}
+          ></div>
           <div className="flex flex-col justify-start items-start p-2 border-t-[1px] w-full">
             <div className="uppercase text-sm font-bold">
               {metaTags.twitter_title || metaTags.title}
