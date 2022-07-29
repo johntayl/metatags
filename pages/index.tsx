@@ -7,7 +7,13 @@ let timeout: any = null;
 
 const fetchUrl = (url: string, baseUrl?: string) => {
   if (!baseUrl && window && window.location && window.location.host) {
-    baseUrl = `http://${window.location.host}`;
+    let protocol = `https://`;
+
+    if (window.location.host.includes("localhost")) {
+      protocol = `http://`;
+    }
+
+    baseUrl = `${protocol}${window.location.host}`;
   }
   return axios
     .get(`${baseUrl}/api/meta?url=${encodeURI(url)}`)
