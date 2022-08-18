@@ -45,8 +45,8 @@ const Layout = ({ children }: LayoutProps) => {
           content="https://meta.johntaylor.me/images/meta-tags.jpg"
         />
         <meta property="twitter:card" content="summary_large_image" />
-        <meta property="twitter:site" content="@johntayl" />
-        <meta property="twitter:creator" content="@johntayl" />
+        <meta property="twitter:site" content="@johntayl89" />
+        <meta property="twitter:creator" content="@johntayl89" />
       </Head>
 
       <div className="p-4 border-b-2">
