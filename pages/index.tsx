@@ -156,6 +156,7 @@ const Home: NextPage<{ initialMetaTags: MetaTags | null }> = ({
 }) => {
   const [url, setUrl] = useState<string>();
   const [metaTags, setMetaTags] = useState<MetaTags | null>(initialMetaTags);
+  const [loading, setLoading] = useState(false);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { value } = e.target;
@@ -173,8 +174,10 @@ const Home: NextPage<{ initialMetaTags: MetaTags | null }> = ({
       const searchParams = new URLSearchParams(window.location.search);
       searchParams.set("url", encodeURI(url));
       window.history.pushState("", "", `?${searchParams.toString()}`);
+      setLoading(true);
       fetchUrl(url).then((data) => {
         setMetaTags(data);
+        setLoading(false);
       });
     }
   };
@@ -191,6 +194,12 @@ const Home: NextPage<{ initialMetaTags: MetaTags | null }> = ({
           onChange={handleChange}
         />
       </div>
+
+      {loading && (
+        <div className="p-4">
+          <p>Scanning {url}...</p>{" "}
+        </div>
+      )}
 
       {metaTags && (
         <>
