@@ -1,218 +1,193 @@
-import axios from "axios";
 import type { NextPage, NextPageContext } from "next";
-import { useState } from "react";
+import { ChangeEventHandler, useState } from "react";
+import { useForm } from "react-hook-form";
+
+import CodePreview from "../components/CodePreview";
+import FacebookPreview from "../components/FacebookPreview";
+import GooglePreview from "../components/GooglePreview";
+import TwitterPreview from "../components/TwitterPreview";
 import { MetaTags } from "../types/meta";
-
-let timeout: any = null;
-
-const fetchUrl = (url: string, baseUrl?: string) => {
-  if (!baseUrl && window && window.location && window.location.host) {
-    let protocol = `https://`;
-
-    if (window.location.host.includes("localhost")) {
-      protocol = `http://`;
-    }
-
-    baseUrl = `${protocol}${window.location.host}`;
-  }
-  return axios
-    .get(`${baseUrl}/api/meta?url=${encodeURI(url)}`)
-    .then((res) => res.data);
-};
-
-const GooglePreview = ({ metaTags }: { metaTags: MetaTags }) => {
-  return (
-    <div className="px-4">
-      <div className="flex flex-row justify-between items-center">
-        <div className="font-bold text-gray-700">Google</div>
-        <div className="flex-1 ml-4">
-          <hr className="border-t-[1px] border-gray-300" />
-        </div>
-      </div>
-
-      <div className="py-2"></div>
-
-      <div>
-        <div className="text-[#1a0dab]">{metaTags.title}</div>
-        <div className="text-[#006621]">{metaTags.url}</div>
-        <div className="text-gray-700">{metaTags.description}</div>
-      </div>
-    </div>
-  );
-};
-
-const FacebookPreview = ({ metaTags }: { metaTags: MetaTags }) => {
-  return (
-    <div className="px-4">
-      <div className="flex flex-row justify-between items-center">
-        <div className="font-bold text-gray-700">Facebook</div>
-        <div className="flex-1 ml-4">
-          <hr className="border-t-[1px] border-gray-300" />
-        </div>
-      </div>
-
-      <div className="py-2"></div>
-
-      <div className="w-[500px]">
-        <div className="flex flex-col justify-start items-start border-[1px] border-gray-200">
-          <div
-            className="relative w-[500px] h-[261px] bg-no-repeat bg-center bg-cover"
-            style={{
-              backgroundImage: `url('${metaTags.og_image})`
-            }}
-          ></div>
-          <div className="flex flex-col justify-start items-start bg-[#f2f3f5] p-2 w-full">
-            <div className="uppercase text-sm text-gray-500">
-              {metaTags.og_site_name}
-            </div>
-            <div className="font-bold">{metaTags.og_title}</div>
-            <div className="text-sm">{metaTags.og_description}</div>
-          </div>
-        </div>
-      </div>
-    </div>
-  );
-};
-
-const TwitterPreview = ({ metaTags }: { metaTags: MetaTags }) => {
-  return (
-    <div className="px-4">
-      <div className="flex flex-row justify-between items-center">
-        <div className="font-bold text-gray-700">Twitter</div>
-        <div className="flex-1 ml-4">
-          <hr className="border-t-[1px] border-gray-300" />
-        </div>
-      </div>
-
-      <div className="py-2"></div>
-
-      <div className="w-[500px]">
-        <div className="flex flex-col justify-start items-start border-[1px] border-gray-300 rounded-md overflow-hidden">
-          <div
-            className="relative w-[500px] h-[261px] bg-no-repeat bg-center bg-cover"
-            style={{
-              backgroundImage: `url('${
-                metaTags.twitter_image || metaTags.og_image
-              }')`
-            }}
-          ></div>
-          <div className="flex flex-col justify-start items-start p-2 border-t-[1px] w-full">
-            <div className="uppercase text-sm font-bold">
-              {metaTags.twitter_title || metaTags.title}
-            </div>
-            <div className="text-sm my-1">
-              {metaTags.twitter_description || metaTags.description}
-            </div>
-            <div className="font-sm text-sm text-[#8899A6]">
-              {metaTags.twitter_site || metaTags.site_name}
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-  );
-};
-
-const CodePreview = ({ metaTags }: { metaTags: MetaTags }) => {
-  const code = `
-  <!-- Site -->
-  <title>${metaTags.title}</title>
-  <meta name="description" content="${metaTags.description}" />
-  
-  <!-- Open Graph -->
-  <meta property="og:title" content="${metaTags.og_title}" />
-  <meta property="og:description" content="${metaTags.og_description}" />
-  <meta property="og:image" content="${metaTags.og_image}" />
-  <meta property="og:url" content="${metaTags.og_url}" />
-  <meta property="og:site_name" content="${metaTags.og_site_name}" />
-
-  <!-- Twitter -->
-  <meta name="twitter:title" content="${metaTags.twitter_title}" />
-  <meta name="twitter:description" content="${metaTags.twitter_description}" />
-  <meta name="twitter:image" content="${metaTags.twitter_image}" />
-  <meta name="twitter:site" content="${metaTags.twitter_site}" />
-  `;
-
-  return (
-    <div className="px-4">
-      <div className="flex flex-row justify-between items-center">
-        <div className="font-bold text-gray-700">HTML</div>
-        <div className="flex-1 ml-4">
-          <hr className="border-t-[1px] border-gray-300" />
-        </div>
-      </div>
-
-      <div className="py-2"></div>
-
-      <div className="rounded-md bg-gray-200 p-4 overflow-hidden">
-        <pre className="whitespace-pre-line">{code}</pre>
-      </div>
-    </div>
-  );
-};
+import { fetchUrl } from "../utils/fetchUrl";
 
 const Home: NextPage<{ initialMetaTags: MetaTags | null }> = ({
   initialMetaTags
 }) => {
-  const [url, setUrl] = useState<string>();
-  const [metaTags, setMetaTags] = useState<MetaTags | null>(initialMetaTags);
+  const [url, setUrl] = useState(initialMetaTags?.url || "");
   const [loading, setLoading] = useState(false);
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { value } = e.target;
-    setUrl(value);
-
-    if (timeout) {
-      clearTimeout(timeout);
+  const { register, getValues, setValue, reset, watch } = useForm<MetaTags>({
+    mode: "onChange",
+    defaultValues: {
+      title: initialMetaTags?.title || "",
+      description: initialMetaTags?.description || "",
+      image: initialMetaTags?.image || "",
+      og_title: initialMetaTags?.og_title || "",
+      og_description: initialMetaTags?.og_description || "",
+      og_image: initialMetaTags?.og_image || "",
+      og_site_name: initialMetaTags?.og_site_name || "",
+      og_url: initialMetaTags?.url || "",
+      twitter_title:
+        initialMetaTags?.twitter_title || initialMetaTags?.og_title || "",
+      twitter_description:
+        initialMetaTags?.twitter_description ||
+        initialMetaTags?.og_description ||
+        "",
+      twitter_image:
+        initialMetaTags?.twitter_image || initialMetaTags?.og_image || "",
+      twitter_site:
+        initialMetaTags?.twitter_site || initialMetaTags?.og_site_name || "",
+      url: initialMetaTags?.url || ""
     }
+  });
 
-    timeout = setTimeout(() => fetchMetaData(value), 1500);
+  watch();
+
+  const handlePreview = (formData: FormData) => {
+    fetchMetaData(formData.url);
+  };
+
+  const handleFileChange: ChangeEventHandler<HTMLInputElement> = (e) => {
+    if (e.target.files && e.target.files.length > 0) {
+      const file = e.target.files[0];
+      const reader = new FileReader();
+      reader.readAsDataURL(file);
+      reader.onloadend = () => {
+        setValue("og_image", reader.result as string);
+        setValue("twitter_image", reader.result as string);
+      };
+    }
   };
 
   const fetchMetaData = (url: string) => {
     if (url) {
+      setUrl(url);
       const searchParams = new URLSearchParams(window.location.search);
       searchParams.set("url", encodeURI(url));
       window.history.pushState("", "", `?${searchParams.toString()}`);
       setLoading(true);
       fetchUrl(url).then((data) => {
-        setMetaTags(data);
         setLoading(false);
+        reset({ ...data, url: url, og_image: "", twitter_image: "" });
       });
     }
   };
 
   return (
-    <>
-      <div className="p-4">
-        <input
-          className="border-[1px] border-gray-300  p-2 w-full"
-          type="text"
-          name="url"
-          placeholder="https://example.com"
-          value={url}
-          onChange={handleChange}
-        />
+    <div className="flex flex-row">
+      {/* left sidebar form */}
+      <div className="w-[350px] border-r-[1px] border-solid border-gray-200">
+        <div className="p-4">
+          <p className="mb-4 text-gray-700 text-sm">
+            Enter the title and description of your page and see how it will
+            look on Google, Facebook and Twitter.
+          </p>
+          <form className="flex flex-col justify-start items-start gap-2 w-full">
+            <div className="w-full">
+              <label className="font-bold text-gray-700">Title</label>
+              <input
+                className="border-[1px] border-gray-300 p-2 w-full"
+                type="text"
+                {...register("title", {
+                  onChange: (e) => {
+                    setValue("title", e.target.value);
+                    setValue("og_title", e.target.value);
+                    setValue("twitter_title", e.target.value);
+                  }
+                })}
+              />
+            </div>
+            <div className="w-full">
+              <label className="font-bold text-gray-700">Description</label>
+              <textarea
+                className="border-[1px] border-gray-300 p-2 w-full"
+                rows={8}
+                {...register("description", {
+                  onChange: (e) => {
+                    setValue("description", e.target.value);
+                    setValue("og_description", e.target.value);
+                    setValue("twitter_description", e.target.value);
+                  }
+                })}
+              ></textarea>
+            </div>
+
+            <div className="w-full">
+              <label className="font-bold text-gray-700">Image</label>
+              <input
+                className="border-[1px] border-gray-300 p-2 w-full"
+                type="file"
+                accept="image/jpeg, image/jpg"
+                onChange={handleFileChange}
+              />
+            </div>
+          </form>
+        </div>
       </div>
 
-      {loading && (
+      <div className="flex-1">
         <div className="p-4">
-          <p>Scanning {url}...</p>{" "}
+          <p className="mb-4 text-sm text-gray-700">
+            Enter the URL of your page.
+          </p>
+          <SearchForm url={initialMetaTags?.url} onSubmit={handlePreview} />
         </div>
-      )}
 
-      {metaTags && (
-        <>
-          <GooglePreview metaTags={metaTags} />
-          <div className="py-4"></div>
-          <FacebookPreview metaTags={metaTags} />
-          <div className="py-4"></div>
-          <TwitterPreview metaTags={metaTags} />
-          <div className="py-4"></div>
-          <CodePreview metaTags={metaTags} />
-        </>
-      )}
-    </>
+        {loading && (
+          <div className="p-4">
+            <p>Reading {url}...</p>{" "}
+          </div>
+        )}
+
+        <GooglePreview metaTags={getValues()} />
+        <div className="py-4"></div>
+        <FacebookPreview metaTags={getValues()} />
+        <div className="py-4"></div>
+        <TwitterPreview metaTags={getValues()} />
+        <div className="py-4"></div>
+        <CodePreview metaTags={getValues()} />
+
+        <div className="py-4"></div>
+      </div>
+    </div>
+  );
+};
+
+type FormData = {
+  url: string;
+};
+
+type SearchFormProps = {
+  url?: string;
+  onSubmit: (data: FormData) => void;
+};
+
+const SearchForm = ({ url, onSubmit }: SearchFormProps) => {
+  const { register, handleSubmit } = useForm<FormData>({
+    mode: "onChange",
+    defaultValues: {
+      url: url || ""
+    }
+  });
+
+  return (
+    <form
+      onSubmit={handleSubmit(onSubmit)}
+      className="flex flex-row justify-between items-start gap-2"
+    >
+      <input
+        className="border-[1px] border-gray-300 p-2 w-full"
+        type="text"
+        placeholder="https://example.com"
+        {...register("url", { required: true })}
+      />
+
+      <button
+        type="submit"
+        className="bg-blue-700 border border-blue-700 text-white px-4 py-2"
+      >
+        Preview
+      </button>
+    </form>
   );
 };
 
@@ -222,13 +197,11 @@ export async function getServerSideProps(context: NextPageContext) {
   const { req, query } = context;
 
   if (query.url) {
-    const metaTags = await fetchUrl(
-      decodeURIComponent(query.url as string),
-      `http://${req?.headers.host}`
-    );
+    const url = decodeURIComponent(query.url as string);
+    const metaTags = await fetchUrl(url, `http://${req?.headers.host}`);
     return {
       props: {
-        initialMetaTags: metaTags
+        initialMetaTags: { ...metaTags, url }
       }
     };
   }

@@ -49,11 +49,13 @@ const Layout = ({ children }: LayoutProps) => {
         <meta property="twitter:creator" content="@johntayl89" />
       </Head>
 
-      <div className="p-4 border-b-2">
-        <h1 className="text-3xl font-bold">Meta Tags</h1>
-      </div>
+      <div className="flex flex-col w-full min-h-screen">
+        <div className="p-4 border-b-[1px]">
+          <h1 className="text-3xl font-bold">Meta Tags</h1>
+        </div>
 
-      <div className="content">{children}</div>
+        <div className="flex-1">{children}</div>
+      </div>
 
       {/* <!-- Global site tag (gtag.js) - Google Analytics --> */}
       <Script
